@@ -1,0 +1,6 @@
+CMakeCache.txt
+CMakeFiles/*
+Makefile
+box
+box.code-workspace
+cmake_install.cmake
