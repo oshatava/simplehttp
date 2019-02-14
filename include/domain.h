@@ -17,7 +17,6 @@ class VersionResponse : public Response
     virtual int on(std::stringstream &out);
 };
 
-
 class DevicesResponse : public Response
 {
   public:
@@ -25,27 +24,32 @@ class DevicesResponse : public Response
     virtual int on(std::stringstream &out);
 };
 
-class Device{
-    public:
-        std::string id;
-        int channelCount;
-    public:
-        Device(std::string id, int channelCount){
-            this -> id = id;
-            this -> channelCount = channelCount;
-        }
+class Device:public json::JSONObject
+{
+  public:
+    const std::string id;
+    const int channelCount;
 
+    Device(std::string id, int channelCount):id(id),channelCount(channelCount)
+    {
+    }
 
+    virtual json::JSON &pack(json::JSON &json)
+    {
+        return json
+            .value("id", id)
+            .value("channelCount", channelCount)
+            .end();
+    }
 };
 
-inline json::JSON& packDevice(json::JSON& json, Device &device){
-    return 
-    json
+inline json::JSON &packDevice(json::JSON &json, Device &device)
+{
+    return json
         .value("id", device.id.c_str())
         .value("channelCount", device.channelCount)
-    .end();
+        .end();
 }
-
 
 } // namespace server
 
