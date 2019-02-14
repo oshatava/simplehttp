@@ -14,6 +14,7 @@ set(SOURCES
     ./src/client.cpp
     ./src/client.cpp
     ./src/response.cpp
+    ./src/json.cpp
     ./src/responses/response_fabric.cpp
     ./src/domain/version.cpp
     ./src/domain/devices.cpp
