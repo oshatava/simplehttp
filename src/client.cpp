@@ -61,5 +61,6 @@ Client::Client(int clientSocketFD) : Task()
 
 Client::~Client()
 {
+    Logger::d() << "Delete client - " << clientSocketFD << endl;    
     stop();
 }

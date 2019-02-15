@@ -19,13 +19,6 @@ using namespace server;
 using namespace logger;
 using namespace common;
 
-inline bool clientIsShouldBeRemoved(Client *c) 
-{ 
-    int res = ((c != NULL) ? c->isStoped() : true);
-    Logger::d()<<"clientIsShouldBeRemoved - "<<res<<logger::endl;
-    return (c != NULL) ? c->isStoped() : true; 
-}
-
 void Server::threadFunc()
 {
     Logger::d() << thread << " Start server" << endl;
@@ -64,24 +57,25 @@ void Server::threadFunc()
             break;
         }
         int port = ((int)(cli_addr.sin_port));
-        Logger::d() << "Got connection from port " << port << logger::endl;
+        Logger::i() << "Got connection from port " << port << logger::endl;
 
-        int was = clients.size();
-        Logger::d() << "Clean up clients " << was << logger::endl;
-        clients.erase(std::remove_if(clients.begin(), clients.end(), clientIsShouldBeRemoved), clients.end());
+        clients.erase(std::remove_if(clients.begin(), clients.end(), [](Client *c){
+            if(c!=NULL && c->isStoped()){
+                delete c;
+            }  
+            return (c != NULL) ? c->isStoped() : true;             
+        }), clients.end());
 
         Client *client = new Client(newsockfd);
         client->start();
         clients.push_back(client);
     }
 
-    for (int i = 0; i < clients.size(); i++)
-    {
-        Client *client = clients[i];
-        client->stop();
+    for (Client * client:clients)
+    {        
         delete client;
     }
-
+    
     clients.clear();
     close(sockfd);
     Logger::d() << "Stop server" << endl;
