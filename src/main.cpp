@@ -9,6 +9,7 @@ int main(){
     // Init http callbacks
     server::ResponseFabric::get()->addRoute(METHOD_GET, "/version", server::createT<server::VersionResponse>);
     server::ResponseFabric::get()->addRoute(METHOD_GET, "/devices", server::createT<server::DevicesResponse>);
+    server::ResponseFabric::get()->addRoute(METHOD_GET, "/device/([0-9]+)", server::createT<server::DeviceResponse>);
 
     // Init server
     server::Server server(8081, 10);

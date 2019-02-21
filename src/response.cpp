@@ -5,6 +5,7 @@
 #include <sstream>
 #include <thread>
 #include <chrono>
+#include <regex>
 
 using namespace server;
 
@@ -33,7 +34,7 @@ std::stringstream &Response::getResponse()
     int contentLength = body.length();
     stream << "HTTP/1.1 " << retCode << " " << codeDescr(retCode) << std::endl;
     stream << "Content-Length :" << contentLength << std::endl;
-    stream << "Server : OSH" << std::endl;
+    stream << "Server : "<< SERVER_NAME << std::endl;
     std::map<std::string, std::string>::iterator it;
     for (it = headers.begin(); it != headers.end(); it++)
     {
@@ -141,28 +142,20 @@ inline std::string parsePath(std::string line, std::map<std::string, std::string
 
 inline void parseHeader(std::map<std::string, std::string> &headers, std::string line)
 {
-    std::istringstream iss(line);
-    std::string s;
-    int index = 0;
+    std::regex rLine("([a-zA-Z0-9-]+): (.*)");
+    std::smatch match;
     std::string name = "";
     std::string value = "";
-    while (getline(iss, s, ':'))
-    {
-        if (index == 0)
-        {
-            name = s;
+    if(std::regex_match(line, match, rLine)){            
+        if(match.size()==3){
+            name = match[1];
+            value = match[2];
+            trim(name);
+            trim(value);
+            headers[name] = value;
+            logger::Logger::d() << "Header [" << name << "] = " << value << logger::endl;
         }
-        else if (index == 1)
-        {
-            value = s;
-            break;
-        }
-        index++;
     }
-    trim(name);
-    trim(value);
-    logger::Logger::d() << "Header [" << name << "] = " << value << logger::endl;
-    headers[name] = value;
 }
 
 Request::Request(std::string requestRaw)

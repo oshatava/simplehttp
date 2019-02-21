@@ -24,6 +24,13 @@ class DevicesResponse : public Response
     virtual int on(std::stringstream &out);
 };
 
+class DeviceResponse : public Response
+{
+  public:
+    DeviceResponse(Request &request) : Response(request) {}
+    virtual int on(std::stringstream &out);
+};
+
 class Device:public json::JSONObject
 {
   public:

@@ -8,6 +8,7 @@
 namespace server
 {
 #define FIRMWARE_VERSION  "0.0.1"
+#define SERVER_NAME "OSH"
 
 #define METHOD_GET "GET"
 #define METHOD_POST "POST"
@@ -27,6 +28,7 @@ class Request
     std::map<std::string, std::string> headers;
     std::map<std::string, std::string> paramsPost;
     std::map<std::string, std::string> paramsGet;
+    std::map<std::string, std::string> paramsPath;
 
   public:
     Request(){
@@ -38,19 +40,22 @@ class Request
             std::string method,
             std::map<std::string, std::string> headers,
             std::map<std::string, std::string> paramsPost,
-            std::map<std::string, std::string> paramsGet)
+            std::map<std::string, std::string> paramsGet,
+            std::map<std::string, std::string> paramsPath)
     {
         this->path = path;
         this->method = method;
         this->headers = headers;
         this->paramsPost = paramsPost;
         this->paramsGet = paramsGet;
+        this->paramsPath = paramsPath;        
     }
     std::string getMethod() { return method; }
     std::string getPath() { return path; }
-    std::map<std::string, std::string> getHeaders() { return headers; }
-    std::map<std::string, std::string> getParamsGet() { return paramsGet; }
-    std::map<std::string, std::string> getParamsPost() { return paramsPost; }
+    std::map<std::string, std::string> &getHeaders() { return headers; }
+    std::map<std::string, std::string> &getParamsGet() { return paramsGet; }
+    std::map<std::string, std::string> &getParamsPost() { return paramsPost; }
+    std::map<std::string, std::string> &getParamsPath() { return paramsPath; }
 };
 
 class Response

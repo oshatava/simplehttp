@@ -39,3 +39,15 @@ int server::DevicesResponse::on(std::stringstream &out)
     .str();
     return 200;
 }
+
+int server::DeviceResponse::on(std::stringstream &out)
+{
+    headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_JSON;
+    json::JSON jsn;
+    jsn.value("id", this->request.getPath());
+    for(const auto p:request.getParamsPath()){
+        jsn.value(p.first, p.second);
+    }
+    out<<jsn.end().str();    
+    return 200;
+}
