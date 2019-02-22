@@ -12,7 +12,6 @@ namespace json
 class JSON
 {
   private:
-    JSON &start(std::string prefix);
     std::stringstream stringstream;
     std::stringstream& stream();
     bool hasValueAdded;

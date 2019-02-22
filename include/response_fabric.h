@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include "response.h"
+#include "html.h"
 
 namespace server
 {
@@ -29,8 +30,21 @@ class Err404Response:public Response{
     public:
     Err404Response(Request &request):Response(request){}
     virtual int on(std::stringstream &out){
-      headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_TEXT;
-      out<<"Page not found";
+      headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_TEXT;      
+      out<<html::HTML()
+        .tag("head")
+          .tag("meta").param("http-equiv", "Content-Type").end()
+          .tag("title").body("404 Error").end()
+        .end()
+        .tag("body")
+          .tag("h1").body("404 Error").end()
+          .tag("p")
+            .body("Page - '")
+            .tag("b").body(request.getPath()).end()
+            .body("' not found")
+          .end()
+        .end()  
+      .build();
       return 404;
     }
 };
