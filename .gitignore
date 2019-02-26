@@ -1,7 +1,13 @@
 CMakeCache.txt
-CMakeFiles/*
+**/CMakeFiles/*
 Makefile
 box
 box.code-workspace
 cmake_install.cmake
 .vscode
+CTestTestfile.cmake
+**/.DS_Store
+googletest/**
+lib/libserver.a
+test/servertest
+.gitmodules
