@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include "json.h"
+#include <json.h>
 
-TEST(JSON, TestEmpty){
+TEST(JSON, TestEmpty){    
     ASSERT_EQ("{}", json::JSON().end().str());    
 }
 

@@ -19,10 +19,12 @@ class ResponseFabric
   public:
     virtual ~ResponseFabric(){}
     void addRoute(std::string method, std::string path, CreatorFn creatorFn);
+    void setErrorResponse(int error, CreatorFn creatorFn);
     Response* createResponse(Request &request);
     static ResponseFabric* get();
   private:    
     std::map<std::string, std::map<std::string, CreatorFn>> callbackCreatorMap;
+    std::map<int, CreatorFn> errorCreatorMap;
     ResponseFabric() {}
 };
 
@@ -45,7 +47,7 @@ class Err404Response:public Response{
           .end()
         .end()  
       .build();
-      return 404;
+      return RESPONSE_CODE_ERROR_404;
     }
 };
 

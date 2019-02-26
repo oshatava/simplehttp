@@ -11,6 +11,9 @@ int main(){
     server::ResponseFabric::get()->addRoute(METHOD_GET, "/devices", server::createT<server::DevicesResponse>);
     server::ResponseFabric::get()->addRoute(METHOD_GET, "/device/([0-9]+)", server::createT<server::DeviceResponse>);
 
+    // Set up error pages
+    server::ResponseFabric::get()->setErrorResponse(RESPONSE_CODE_ERROR_404, server::createT<server::My404ErrorPage>);
+
     // Init server
     server::Server server(8081, 10);
     

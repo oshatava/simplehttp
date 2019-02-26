@@ -31,6 +31,13 @@ class DeviceResponse : public Response
     virtual int on(std::stringstream &out);
 };
 
+class My404ErrorPage : public Response
+{
+  public:
+    My404ErrorPage(Request &request) : Response(request) {}
+    virtual int on(std::stringstream &out);
+};
+
 class Device:public json::JSONObject
 {
   public:

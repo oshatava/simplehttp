@@ -15,6 +15,10 @@ namespace server
 #define METHOD_PUT "PUT"
 #define METHOD_DELETE "DELETE"
 
+#define RESPONSE_CODE_ERROR_404 404
+#define RESPONSE_CODE_OK_200 200
+
+
 #define HEADER_CONTENT_TYPE "Content-Type"
 #define CONTENT_TYPE_TEXT "text/html"
 #define CONTENT_TYPE_JSON "application/json"

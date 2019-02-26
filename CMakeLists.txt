@@ -13,6 +13,7 @@ set(SOURCES
     ./src/main.cpp    
     ./src/version.cpp
     ./src/devices.cpp
+    ./src/error404.cpp
 )
 
 add_executable(box ${SOURCES})
