@@ -26,15 +26,16 @@ inline std::string codeDescr(int code)
     }
 }
 
+void Response::proccess(){    
+    retCode = on(body);
+}
+
 std::stringstream &Response::getResponse()
 {
-    std::stringstream out;
-    int retCode = on(out);
-    std::string body = out.str();
+    std::string body = this->body.str();
     int contentLength = body.length();
     stream << "HTTP/1.1 " << retCode << " " << codeDescr(retCode) << std::endl;
     stream << "Content-Length :" << contentLength << std::endl;
-    stream << "Server : "<< SERVER_NAME << std::endl;
     std::map<std::string, std::string>::iterator it;
     for (it = headers.begin(); it != headers.end(); it++)
     {
@@ -42,7 +43,6 @@ std::stringstream &Response::getResponse()
     }
     stream << std::endl;
     stream << body;
-
     return stream;
 }
 
@@ -95,8 +95,7 @@ inline void parseParameters(std::map<std::string, std::string> &parameters, std:
         }
         trim(name);
         trim(value);
-        parameters[name] = value;
-        logger::Logger::d() << "Parameter [" << name << "] = " << value << logger::endl;
+        parameters[name] = value;        
     }
 }
 
@@ -116,7 +115,6 @@ inline std::string parsePathParams(std::string line, std::map<std::string, std::
         {
             path = s;
         }else{
-            logger::Logger::d() << "Parameters GET"<< logger::endl;    
             parseParameters(parameters, s);
         }
         index++;
@@ -153,7 +151,6 @@ inline void parseHeader(std::map<std::string, std::string> &headers, std::string
             trim(name);
             trim(value);
             headers[name] = value;
-            logger::Logger::d() << "Header [" << name << "] = " << value << logger::endl;
         }
     }
 }
@@ -186,8 +183,6 @@ Request::Request(std::string requestRaw)
                 this->method = METHOD_DELETE;
             }
             this->path = parsePath(line, this->paramsGet);
-            logger::Logger::d() << "Method is " << this->method << logger::endl;
-            logger::Logger::d() << "Path is " << this->path << logger::endl;
             index++;
         }
         else if (index == 1)
@@ -207,6 +202,5 @@ Request::Request(std::string requestRaw)
         }
     }
     this->data = data.str();
-    logger::Logger::d() << "Parameters POST"<< logger::endl;
     parseParameters(this->paramsPost, this->data);    
 }

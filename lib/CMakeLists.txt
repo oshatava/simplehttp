@@ -14,7 +14,7 @@ set(SOURCES
     ./src/client.cpp
     ./src/response.cpp
     ./src/json.cpp
-    ./src/response_fabric.cpp
+    ./src/configuration.cpp
 )
 
 add_library(server ${SOURCES})

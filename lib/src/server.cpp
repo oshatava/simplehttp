@@ -38,14 +38,14 @@ void Server::threadFunc()
     bzero((char *)&serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(this->port);
+    serv_addr.sin_port = htons(configuration.getPort());
     if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
         Logger::e() << "ERROR on binding" << logger::endl;
         return;
     }
 
-    listen(sockfd, this->maxConnection);
+    listen(sockfd, configuration.getMaxConnection());
     clilen = sizeof(cli_addr);
 
     while (!isShouldStop())
@@ -66,7 +66,7 @@ void Server::threadFunc()
             return (c != NULL) ? c->isStoped() : true;             
         }), clients.end());
 
-        Client *client = new Client(newsockfd);
+        Client *client = new Client(newsockfd, this->configuration);
         client->start();
         clients.push_back(client);
     }
@@ -81,12 +81,9 @@ void Server::threadFunc()
     Logger::d() << "Stop server" << endl;
 }
 
-Server::Server(int port, int maxConnection) : Task()
+Server::Server(Configuration &_configuration):Task(), configuration(_configuration)
 {
-    this->port = port;
-    this->maxConnection = maxConnection;
-    unsigned long addr = (unsigned long)this;
-    Logger::d() << thread << " Create server on port " << port << " for maximum clients " << maxConnection << " id " << addr << logger::endl;
+    //Logger::d() << thread << " Create server on port " << configuration.getPort() << " for maximum clients " << configuration.getMaxConnection() << logger::endl;    
 }
 
 Server::~Server()

@@ -1,7 +1,7 @@
 #include "client.h"
 #include "logger.h"
 #include "task.h"
-#include "response_fabric.h"
+#include "configuration.h"
 #include <sstream>
 #include <thread>
 #include <chrono>
@@ -43,7 +43,7 @@ void Client::threadFunc()
     }
 
     Request request(input.str());
-    Response *response = ResponseFabric::get()->createResponse(request);
+    Response *response = configuration.createResponse(request);
     std::string out = response->getResponse().str();
     delete response;
     
@@ -53,7 +53,7 @@ void Client::threadFunc()
     Logger::d() << "Stop client task and close socket - " << clientSocketFD << endl;    
 }
 
-Client::Client(int clientSocketFD) : Task()
+Client::Client(int clientSocketFD, Configuration& configuration) : Task(), configuration(configuration)
 {
     this->clientSocketFD = clientSocketFD;
     Logger::d() << thread << " Create client task" << logger::endl;

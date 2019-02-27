@@ -2,6 +2,7 @@
 #define SERVER_H
 #include <thread>
 #include "task.h"
+#include "configuration.h"
 
 namespace server
 {
@@ -9,11 +10,10 @@ namespace server
 class Server : public common::Task
 {
 private:
-  unsigned int port;
-  unsigned int maxConnection;
+  Configuration &configuration;
 
 public:
-  Server(int port, int maxConnection);
+  Server(Configuration &configuration);
   virtual ~Server();
 
 protected:

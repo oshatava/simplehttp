@@ -67,14 +67,27 @@ class Response
   protected:
     Request& request;
     std::map<std::string, std::string> headers;
+    std::stringstream body;
     std::stringstream stream;
+    int retCode;
   public:    
     Response(Request& request):request(request)
     {
     }
     virtual ~Response(){}
+    void proccess();
     std::stringstream &getResponse();
     virtual int on(std::stringstream &body) = 0;
+
+    std::map<std::string, std::string> &getHeaders() { return headers; }
+    std::string getBody() { return body.str(); }
+    void setBody(std::string newBody) { 
+      body.clear();
+      body.flush();
+      body<<newBody;
+    }
+    int getRetCode(){return retCode;}
+    void setRetCode(int newRetCode){retCode = newRetCode;}
 };
 
 } // namespace server
