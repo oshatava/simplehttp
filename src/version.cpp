@@ -1,9 +1,10 @@
 #include "domain.h"
 #include "json.h"
 
-int server::VersionResponse::on(std::stringstream &out)
+server::Response domain::VersionResponse(server::Request &request)
 {
-    headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_JSON;
-    out << json::JSON().value("version", FIRMWARE_VERSION).end().str();
-    return 200;
+    return server::Response(request)
+        .setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON)
+        .setBody(json::JSON().value("version", FIRMWARE_VERSION).end().str())
+        .setRetCode(RESPONSE_CODE_OK_200);
 }

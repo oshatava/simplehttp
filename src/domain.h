@@ -6,65 +6,49 @@
 #include <sstream>
 #include "response.h"
 #include "json.h"
+#include "configuration.h"
 
-namespace server
+namespace domain
 {
 
-class VersionResponse : public Response
+server::Response VersionResponse(server::Request &request);
+server::Response DevicesResponse(server::Request &request);
+server::Response DeviceResponse(server::Request &request);
+server::Response My404ErrorPage(server::Request &request);
+
+class Device : public json::JSONObject
 {
-  public:
-    VersionResponse(Request &request) : Response(request) {}
-    virtual int on(std::stringstream &out);
-};
+public:
+  const std::string id;
+  const int channelCount;
 
-class DevicesResponse : public Response
-{
-  public:
-    DevicesResponse(Request &request) : Response(request) {}
-    virtual int on(std::stringstream &out);
-};
+  Device(std::string id, int channelCount) : id(id), channelCount(channelCount)
+  {
+  }
 
-class DeviceResponse : public Response
-{
-  public:
-    DeviceResponse(Request &request) : Response(request) {}
-    virtual int on(std::stringstream &out);
-};
-
-class My404ErrorPage : public Response
-{
-  public:
-    My404ErrorPage(Request &request) : Response(request) {}
-    virtual int on(std::stringstream &out);
-};
-
-class Device:public json::JSONObject
-{
-  public:
-    const std::string id;
-    const int channelCount;
-
-    Device(std::string id, int channelCount):id(id),channelCount(channelCount)
-    {
-    }
-
-    virtual json::JSON &pack(json::JSON &json)
-    {
-        return json
-            .value("id", id)
-            .value("channelCount", channelCount)
-            .end();
-    }
+  virtual json::JSON &pack(json::JSON &json)
+  {
+    return json
+        .value("id", id)
+        .value("channelCount", channelCount)
+        .end();
+  }
 };
 
 inline json::JSON &packDevice(json::JSON &json, Device &device)
 {
-    return json
-        .value("id", device.id.c_str())
-        .value("channelCount", device.channelCount)
-        .end();
+  return json
+      .value("id", device.id.c_str())
+      .value("channelCount", device.channelCount)
+      .end();
 }
 
-} // namespace server
+} // namespace domain
+
+namespace http_logger
+{
+void logResponse(server::Response &response);
+void logRequest(server::Request &request);
+} // namespace http_logger
 
 #endif

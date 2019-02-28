@@ -3,33 +3,55 @@
 
 using namespace server;
 
-Configuration &Configuration::route(std::string method, std::string path, CreatorFn creatorFn){
-    callbackCreatorMap[method][path]=creatorFn;
+inline Response err404Response(Request& request){
+    return Response(request)
+      .setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_TEXT)
+      .setBody(html::HTML()
+        .tag("head")
+          .tag("meta").param("http-equiv", "Content-Type").end()
+          .tag("title").body("404 Error").end()
+        .end()
+        .tag("body")
+          .tag("h1").body("404 Error").end()
+          .tag("p")
+            .body("Page - '")
+            .tag("b").body(request.getPath()).end()
+            .body("' not found")
+          .end()
+        .end()  
+      .build())
+    .setRetCode(RESPONSE_CODE_ERROR_404);
+}
+
+Configuration &Configuration::route(std::string method, std::string path, ResponseProvider responseProvider){
+    callbackCreatorMap[method][path]=responseProvider;
     return (*this);
 }
 
-Configuration &Configuration::error(int error, CreatorFn creatorFn){
-    errorCreatorMap[error] = creatorFn;
+Configuration &Configuration::error(int error, ResponseProvider responseProvider){
+    errorCreatorMap[error] = responseProvider;
     return (*this);
 }
 
-Configuration &Configuration::preProccessor(RequestPreProcessorFn preProccessor){
+Configuration &Configuration::preProccessor(RequestProccesor preProccessor){
     preProccessors.push_back(preProccessor);
     return (*this);
 }
 
-Configuration &Configuration::postProccessor(ResponsePostProcessorFn postProccessor){
+Configuration &Configuration::postProccessor(ResponseProccesor postProccessor){
     postProccessors.push_back(postProccessor);
     return (*this);
 }
 
-Response *Configuration::createResponse(Request &request)
+Response Configuration::createResponse(Request &request)
 {
     std::string method = request.getMethod();
     std::string path = request.getPath();
-    std::map<std::string, CreatorFn> methods = callbackCreatorMap[method];
-    Response * ret = NULL;
-    for (std::pair<std::string, CreatorFn> entry : methods)
+    std::map<std::string, ResponseProvider> methods = callbackCreatorMap[method];
+    bool gotResponse = false;
+    ResponseProvider responseProvider = NULL;
+
+    for (std::pair<std::string, ResponseProvider> entry : methods)
     {
         std::regex rPath(entry.first);
         std::smatch match;
@@ -41,22 +63,22 @@ Response *Configuration::createResponse(Request &request)
                 index << "$" << i;
                 request.getParamsPath()[index.str()] = match[i];
             }
-            CreatorFn creatorFn = entry.second;
-            if (creatorFn != NULL)
+            if (entry.second != NULL)
             {
-                ret = creatorFn(request);
+                responseProvider = entry.second;
+                gotResponse = true;
                 break;
             }
         }
     }
 
-    if(ret==NULL){
-        CreatorFn errorPageCreatorFn = errorCreatorMap[RESPONSE_CODE_ERROR_404];
+    if(responseProvider == NULL){
+        ResponseProvider errorPageCreatorFn = errorCreatorMap[RESPONSE_CODE_ERROR_404];
         if (errorPageCreatorFn != NULL)
         {
-            ret = errorPageCreatorFn(request);
+            responseProvider = errorPageCreatorFn;
         }else{
-            ret = new Err404Response(request);
+            responseProvider = err404Response;
         }
     }
 
@@ -64,11 +86,11 @@ Response *Configuration::createResponse(Request &request)
         requestProccesor(request);
     }
 
-    ret->proccess();
+    Response response = responseProvider(request);
 
     for(auto responseProccesor:this->postProccessors){
-        responseProccesor(ret);
+        responseProccesor(response);
     }
 
-    return ret;
+    return response;
 }

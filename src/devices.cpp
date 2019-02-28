@@ -1,12 +1,10 @@
 #include "domain.h"
 #include "json.h"
 
-int server::DevicesResponse::on(std::stringstream &out)
+server::Response domain::DevicesResponse(server::Request &request)
 {
-    headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_JSON;
-
-    Device device1("87b89as793b937cv5", 10);
-    Device device2("8sdaf7assa3b937cv", 2);
+    domain::Device device1("87b89as793b937cv5", 10);
+    domain::Device device2("8sdaf7assa3b937cv", 2);
     std::vector<Device> devices;
 
     devices.push_back(device1);
@@ -14,7 +12,8 @@ int server::DevicesResponse::on(std::stringstream &out)
     devices.push_back(device2);
     devices.push_back(device1);
     
-    out<<json::JSON()
+    json::JSON jsn;
+    jsn
         .value("version", FIRMWARE_VERSION)
         .value("data", 10)
         .object("object")
@@ -35,19 +34,23 @@ int server::DevicesResponse::on(std::stringstream &out)
         .array("arr2")
             .objects(devices, packDevice)
         .end()
-    .end()
-    .str();
-    return 200;
+    .end();
+
+    return server::Response(request)
+    .setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON)
+    .setBody(jsn.str())
+    .setRetCode(RESPONSE_CODE_OK_200);
 }
 
-int server::DeviceResponse::on(std::stringstream &out)
-{
-    headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_JSON;
+server::Response domain::DeviceResponse(server::Request &request){
     json::JSON jsn;
-    jsn.value("id", this->request.getPath());
+    jsn.value("id", request.getPath());
     for(const auto p:request.getParamsPath()){
         jsn.value(p.first, p.second);
     }
-    out<<jsn.end().str();    
-    return 200;
+
+    return server::Response(request)
+    .setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON)
+    .setBody(jsn.end().str())
+    .setRetCode(RESPONSE_CODE_OK_200);
 }

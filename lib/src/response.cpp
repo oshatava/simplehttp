@@ -26,12 +26,9 @@ inline std::string codeDescr(int code)
     }
 }
 
-void Response::proccess(){    
-    retCode = on(body);
-}
-
-std::stringstream &Response::getResponse()
+std::string Response::build()
 {
+    std::stringstream stream;
     std::string body = this->body.str();
     int contentLength = body.length();
     stream << "HTTP/1.1 " << retCode << " " << codeDescr(retCode) << std::endl;
@@ -43,7 +40,7 @@ std::stringstream &Response::getResponse()
     }
     stream << std::endl;
     stream << body;
-    return stream;
+    return stream.str();
 }
 
 // trim from start (in place)

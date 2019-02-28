@@ -14,6 +14,7 @@ set(SOURCES
     ./src/version.cpp
     ./src/devices.cpp
     ./src/error404.cpp
+    ./src/http_logger.cpp
 )
 
 add_executable(box ${SOURCES})

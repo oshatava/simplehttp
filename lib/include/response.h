@@ -7,7 +7,7 @@
 
 namespace server
 {
-#define FIRMWARE_VERSION  "0.0.1"
+#define FIRMWARE_VERSION "0.0.1"
 #define SERVER_NAME "OSH"
 
 #define METHOD_GET "GET"
@@ -18,76 +18,113 @@ namespace server
 #define RESPONSE_CODE_ERROR_404 404
 #define RESPONSE_CODE_OK_200 200
 
-
 #define HEADER_CONTENT_TYPE "Content-Type"
 #define CONTENT_TYPE_TEXT "text/html"
 #define CONTENT_TYPE_JSON "application/json"
 
 class Request
 {
-  private:
-    std::string method;
-    std::string path;
-    std::string data;
-    std::map<std::string, std::string> headers;
-    std::map<std::string, std::string> paramsPost;
-    std::map<std::string, std::string> paramsGet;
-    std::map<std::string, std::string> paramsPath;
+private:
+  std::string method;
+  std::string path;
+  std::string data;
+  std::map<std::string, std::string> headers;
+  std::map<std::string, std::string> paramsPost;
+  std::map<std::string, std::string> paramsGet;
+  std::map<std::string, std::string> paramsPath;
 
-  public:
-    Request(){
+public:
+  Request()
+  {
+  }
 
-    }
-    Request(std::string requestRaw);
+  Request(std::string requestRaw);
 
-    Request(std::string path,
-            std::string method,
-            std::map<std::string, std::string> headers,
-            std::map<std::string, std::string> paramsPost,
-            std::map<std::string, std::string> paramsGet,
-            std::map<std::string, std::string> paramsPath)
-    {
-        this->path = path;
-        this->method = method;
-        this->headers = headers;
-        this->paramsPost = paramsPost;
-        this->paramsGet = paramsGet;
-        this->paramsPath = paramsPath;        
-    }
-    std::string getMethod() { return method; }
-    std::string getPath() { return path; }
-    std::map<std::string, std::string> &getHeaders() { return headers; }
-    std::map<std::string, std::string> &getParamsGet() { return paramsGet; }
-    std::map<std::string, std::string> &getParamsPost() { return paramsPost; }
-    std::map<std::string, std::string> &getParamsPath() { return paramsPath; }
+  Request(std::string path,
+          std::string method,
+          std::map<std::string, std::string> headers,
+          std::map<std::string, std::string> paramsPost,
+          std::map<std::string, std::string> paramsGet,
+          std::map<std::string, std::string> paramsPath)
+  {
+    this->path = path;
+    this->method = method;
+    this->headers = headers;
+    this->paramsPost = paramsPost;
+    this->paramsGet = paramsGet;
+    this->paramsPath = paramsPath;
+  }
+
+  Request(const Request &r) : Request(r.path, r.method, r.headers, r.paramsPost, r.paramsGet, r.paramsPath)
+  {
+  }
+
+  std::string getMethod() { return method; }
+  std::string getPath() { return path; }
+  std::map<std::string, std::string> &getHeaders() { return headers; }
+  std::map<std::string, std::string> &getParamsGet() { return paramsGet; }
+  std::map<std::string, std::string> &getParamsPost() { return paramsPost; }
+  std::map<std::string, std::string> &getParamsPath() { return paramsPath; }
 };
 
 class Response
 {
-  protected:
-    Request& request;
-    std::map<std::string, std::string> headers;
-    std::stringstream body;
-    std::stringstream stream;
-    int retCode;
-  public:    
-    Response(Request& request):request(request)
-    {
-    }
-    virtual ~Response(){}
-    void proccess();
-    std::stringstream &getResponse();
-    virtual int on(std::stringstream &body) = 0;
+protected:
+  Request &request;
+  std::map<std::string, std::string> headers;
+  std::stringstream body;
+  int retCode;
 
-    std::map<std::string, std::string> &getHeaders() { return headers; }
-    std::string getBody() { return body.str(); }
-    void setBody(std::string newBody) { 
-      body.clear();
-      body.flush();
-      body<<newBody;
-    }
-    int getRetCode(){return retCode;}
-    void setRetCode(int newRetCode){retCode = newRetCode;}
+public:
+  Response(Request &request,
+           std::map<std::string, std::string> headers,
+           std::string body,
+           int retCode) : request(request), headers(headers), retCode(retCode)
+  {
+    this->body << body;
+  }
+
+  Response(Request &request) : request(request)
+  {
+  }
+
+  Response(const Response &response) : Response(response.request, response.headers, response.body.str(), response.retCode)
+  {
+  }
+
+  virtual ~Response() {}
+  std::string build();
+
+  // Getters
+  std::map<std::string, std::string> &getHeaders() { return headers; }
+  std::string getBody() { return body.str(); }
+  int getRetCode() { return retCode; }
+
+  // Builder
+  Response &setHeaders(std::map<std::string, std::string> headers)
+  {
+    this->headers.clear();
+    this->headers = headers;
+    return (*this);
+  }
+
+  Response &setHeader(std::string name, std::string value)
+  {
+    this->headers[name] = value;
+    return (*this);
+  }
+
+  Response &setBody(std::string body)
+  {
+    this->body << body;
+    return (*this);
+  }
+
+  Response &setRetCode(int code)
+  {
+    this->retCode = code;
+    return (*this);
+  }
 };
 
 } // namespace server

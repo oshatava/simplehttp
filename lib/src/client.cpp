@@ -43,10 +43,9 @@ void Client::threadFunc()
     }
 
     Request request(input.str());
-    Response *response = configuration.createResponse(request);
-    std::string out = response->getResponse().str();
-    delete response;
-    
+    Response response = configuration.createResponse(request);
+    std::string out = response.build();
+
     send(clientSocketFD, out.c_str(), out.length(), 0);
 
     close(clientSocketFD);

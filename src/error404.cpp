@@ -1,10 +1,11 @@
 #include "domain.h"
 #include "html.h"
 
-int server::My404ErrorPage::on(std::stringstream &out)
-{
-      headers[HEADER_CONTENT_TYPE] = CONTENT_TYPE_TEXT;      
-      out<<html::HTML()
+server::Response domain::My404ErrorPage(server::Request &request)
+{      
+      return server::Response(request)
+      .setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_TEXT)
+      .setBody(html::HTML()
         .tag("head")
           .tag("meta").param("http-equiv", "Content-Type").end()
           .tag("title").body("My 404 Error Page").end()
@@ -17,6 +18,6 @@ int server::My404ErrorPage::on(std::stringstream &out)
             .body("' not found")
           .end()
         .end()  
-      .build();
-      return RESPONSE_CODE_ERROR_404;
+      .build())
+      .setRetCode(RESPONSE_CODE_ERROR_404);
 }
