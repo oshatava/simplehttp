@@ -198,6 +198,6 @@ Request::Request(std::string requestRaw)
             data << line << std::endl;
         }
     }
-    this->data = data.str();
-    parseParameters(this->paramsPost, this->data);    
+    this->body = data.str();
+    parseParameters(this->paramsPost, this->body);    
 }

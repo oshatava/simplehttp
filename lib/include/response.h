@@ -27,7 +27,7 @@ class Request
 private:
   std::string method;
   std::string path;
-  std::string data;
+  std::string body;
   std::map<std::string, std::string> headers;
   std::map<std::string, std::string> paramsPost;
   std::map<std::string, std::string> paramsGet;
@@ -42,6 +42,7 @@ public:
 
   Request(std::string path,
           std::string method,
+          std::string body,
           std::map<std::string, std::string> headers,
           std::map<std::string, std::string> paramsPost,
           std::map<std::string, std::string> paramsGet,
@@ -49,22 +50,29 @@ public:
   {
     this->path = path;
     this->method = method;
+    this->body = body;
     this->headers = headers;
     this->paramsPost = paramsPost;
     this->paramsGet = paramsGet;
     this->paramsPath = paramsPath;
   }
 
-  Request(const Request &r) : Request(r.path, r.method, r.headers, r.paramsPost, r.paramsGet, r.paramsPath)
+  Request(const Request &r) : Request(r.path, r.method, r.body, r.headers, r.paramsPost, r.paramsGet, r.paramsPath)
   {
   }
 
   std::string getMethod() { return method; }
   std::string getPath() { return path; }
+  std::string getBody() { return body; }
   std::map<std::string, std::string> &getHeaders() { return headers; }
   std::map<std::string, std::string> &getParamsGet() { return paramsGet; }
   std::map<std::string, std::string> &getParamsPost() { return paramsPost; }
   std::map<std::string, std::string> &getParamsPath() { return paramsPath; }
+
+  void setMethod(std::string method) { this->method = method; }
+  void setPath(std::string path) { this->path = path; }
+  void setBody(std::string body) { this->body = body; }
+  
 };
 
 class Response
@@ -99,7 +107,7 @@ public:
   std::map<std::string, std::string> &getHeaders() { return headers; }
   std::string getBody() { return body.str(); }
   int getRetCode() { return retCode; }
-
+  Request getRequest(){return request;}
   // Builder
   Response &setHeaders(std::map<std::string, std::string> headers)
   {
@@ -115,6 +123,13 @@ public:
   }
 
   Response &setBody(std::string body)
+  {
+    this->body.str(std::string());
+    this->body << body;
+    return (*this);
+  }
+
+  Response &appendBody(std::string body)
   {
     this->body << body;
     return (*this);

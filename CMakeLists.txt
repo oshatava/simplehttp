@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(./lib/include)
 include_directories(./src)
 
-link_directories(./lib)
+link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 set(SOURCES 
     ./src/main.cpp    
@@ -15,6 +15,7 @@ set(SOURCES
     ./src/devices.cpp
     ./src/error404.cpp
     ./src/http_logger.cpp
+    ./src/coder.cpp
 )
 
 add_executable(box ${SOURCES})
