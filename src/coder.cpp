@@ -12,6 +12,7 @@ void security::RequestDeCoder(server::Request &r){
 void security::ResponseEnCoder(server::Response &r){
     std::string enc = r.getRequest().getHeaders()["Encrypted"];    
     if(enc == "1"){
+        r.setHeader("Encrypted", "1");
         CaesarCoder coder;        
         r.setBody(coder.encode(r.getBody()));
     }

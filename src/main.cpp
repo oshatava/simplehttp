@@ -7,6 +7,11 @@
 using namespace domain;
 using namespace http_logger;
 
+#ifndef APP_SERVER_NAME
+#define APP_SERVER_NAME "box server"
+#endif
+
+
 int main()
 {
     logger::Logger::create(logger::DEBUG);
@@ -22,10 +27,7 @@ int main()
         .preProccessor(logRequest)
         .preProccessor(security::RequestDeCoder)
         .postProccessor([](server::Response &response) {
-            response.setHeader("Server", SERVER_NAME);
-        })
-        .postProccessor([](server::Response &response) {
-            response.setHeader("Encrypted", "1");
+            response.setHeader("Server", APP_SERVER_NAME);
         })
         .postProccessor(logResponse)
         .postProccessor(security::ResponseEnCoder)
