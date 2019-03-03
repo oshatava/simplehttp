@@ -8,7 +8,7 @@ using namespace domain;
 using namespace http_logger;
 
 #ifndef APP_SERVER_NAME
-#define APP_SERVER_NAME "box server"
+#define APP_SERVER_NAME u8"Олег server"
 #endif
 
 
@@ -17,7 +17,7 @@ int main()
     logger::Logger::create(logger::DEBUG);
 
     // Init http callbacks
-    server::Configuration configuration(8081, 10);
+    server::Configuration configuration(8080, 10);
 
     configuration
         .route(METHOD_GET, "/version", VersionResponse)

@@ -51,6 +51,6 @@ server::Response domain::DeviceResponse(server::Request &request){
 
     return server::Response(request)
     .setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON)
-    .setBody(jsn.end().str())
+    .setBody(jsn.value("test", u8"Привет венегрет").end().str())
     .setRetCode(RESPONSE_CODE_OK_200);
 }
