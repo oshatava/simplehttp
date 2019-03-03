@@ -5,6 +5,7 @@
 #include <sstream>
 #include <thread>
 #include <chrono>
+#include <vector>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,8 +22,8 @@ using namespace common;
 void Client::threadFunc()
 {
     Logger::d() << thread << " Start client task for socket - " << clientSocketFD << endl;
-    char buffer[256];
-    std::stringstream input;
+    unsigned char buffer[256];
+    std::vector<unsigned char> input;
 
     while (!isShouldStop())
     {
@@ -32,18 +33,19 @@ void Client::threadFunc()
         {
             Logger::e() << "ERROR reading from socket" << logger::endl;
             break;
+        }  
+        
+        if(n>0){
+            input.insert(input.end(), buffer, buffer+n);      
         }
-        input << buffer;
+
         if (n < 255)
         {
-            std::string data = input.str();
-            Logger::d() << "Input data: " << logger::endl<< data << logger::endl;
             break;
         }
     }
 
-    Request request(input.str());
-    Response response = configuration.createResponse(request);
+    Response response = configuration.createResponse(input.data(), input.size());
     std::string out = response.build();
 
     send(clientSocketFD, out.c_str(), out.length(), 0);

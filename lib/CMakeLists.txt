@@ -1,8 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 project (server)
 
-cmake_policy(SET CMP0081 OLD)
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -14,8 +12,9 @@ set(SOURCES
     ./src/task.cpp
     ./src/client.cpp
     ./src/client.cpp
-    ./src/response.cpp
+    ./src/entity.cpp
     ./src/json.cpp
+    ./src/http.cpp
     ./src/configuration.cpp
 )
 

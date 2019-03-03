@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include "response.h"
+#include "entity.h"
 #include "json.h"
 #include "configuration.h"
 

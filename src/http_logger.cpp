@@ -1,5 +1,5 @@
 #include <logger.h>
-#include <response.h>
+#include "entity.h"
 #include <domain.h>
 
 void http_logger::logResponse(server::Response &response)

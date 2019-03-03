@@ -1,6 +1,6 @@
 #ifndef CODER_H
 #define CODER_H
-#include "response.h"
+#include "entity.h"
 #include <string>
 
 namespace security{

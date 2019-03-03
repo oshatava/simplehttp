@@ -5,12 +5,13 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include "response.h"
+#include "entity.h"
 #include "html.h"
 
 namespace server
 {
 
+typedef Request (*RequestProvider)(const unsigned char *buffer, int size);
 typedef Response (*ResponseProvider)(Request &request);
 typedef void (*RequestProccesor)(Request &response);
 typedef void (*ResponseProccesor)(Response &response);
@@ -21,13 +22,11 @@ class Configuration
     virtual ~Configuration(){}
     Configuration &route(std::string method, std::string path, ResponseProvider responseProvider);
     Configuration &error(int error, ResponseProvider responseProvider);
+    Configuration &preProccessorRaw(RequestProvider preProccessorRaw);
     Configuration &preProccessor(RequestProccesor preProccessor);
     Configuration &postProccessor(ResponseProccesor postProccessor);
-    Response createResponse(Request &request);
-    Configuration(int port, int maxConnection){
-      this->port = port;
-      this->maxConnection = maxConnection;
-    }
+    Response createResponse(const unsigned char *buffer, int size);
+    Configuration(int port, int maxConnection);
     unsigned int getPort(){return port;}
     unsigned int getMaxConnection(){return maxConnection;}
 
@@ -38,6 +37,7 @@ class Configuration
     std::map<int, ResponseProvider> errorCreatorMap;    
     std::vector<RequestProccesor> preProccessors;
     std::vector<ResponseProccesor> postProccessors;
+    RequestProvider preProccessorRawFunc;
 };
 
 } // namespace server

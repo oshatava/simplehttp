@@ -1,5 +1,8 @@
 #include "configuration.h"
 #include <regex>
+#include <sstream>
+#include <logger.h>
+#include <http.h>
 
 using namespace server;
 
@@ -23,6 +26,13 @@ inline Response err404Response(Request& request){
     .setRetCode(RESPONSE_CODE_ERROR_404);
 }
 
+Configuration::Configuration(int port, int maxConnection){
+      this->port = port;
+      this->maxConnection = maxConnection;
+      preProccessorRaw(http::requestProvider);
+      error(RESPONSE_CODE_ERROR_404, err404Response);
+}
+
 Configuration &Configuration::route(std::string method, std::string path, ResponseProvider responseProvider){
     callbackCreatorMap[method][path]=responseProvider;
     return (*this);
@@ -43,13 +53,20 @@ Configuration &Configuration::postProccessor(ResponseProccesor postProccessor){
     return (*this);
 }
 
-Response Configuration::createResponse(Request &request)
+Configuration &Configuration::preProccessorRaw(RequestProvider requestProvider){
+    preProccessorRawFunc = requestProvider;
+    return (*this);
+}
+
+Response Configuration::createResponse(const unsigned char *buffer, int size)
 {
+    Request request = this->preProccessorRawFunc(buffer, size);
+
     std::string method = request.getMethod();
     std::string path = request.getPath();
     std::map<std::string, ResponseProvider> methods = callbackCreatorMap[method];
     bool gotResponse = false;
-    ResponseProvider responseProvider = NULL;
+    ResponseProvider responseProvider = NULL;    
 
     for (std::pair<std::string, ResponseProvider> entry : methods)
     {
