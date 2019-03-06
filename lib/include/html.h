@@ -24,7 +24,7 @@ class HTML
         HTML * child = new HTML(this, tagName);
         children.push_back(child); 
         return child;
-        }
+    }
 
     std::string openTag(){
         std::stringstream openTagS;

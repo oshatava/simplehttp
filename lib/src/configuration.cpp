@@ -58,9 +58,9 @@ Configuration &Configuration::preProccessorRaw(RequestProvider requestProvider){
     return (*this);
 }
 
-Response Configuration::createResponse(const unsigned char *buffer, int size)
+Response Configuration::createResponse(const std::vector<char> &data)
 {
-    Request request = this->preProccessorRawFunc(buffer, size);
+    Request request = this->preProccessorRawFunc(data);
 
     std::string method = request.getMethod();
     std::string path = request.getPath();

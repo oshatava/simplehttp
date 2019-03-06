@@ -4,6 +4,6 @@
 
 namespace http
 {
-server::Request requestProvider(const unsigned char *buffer, int size);
+server::Request requestProvider(const std::vector<char> &data);
 }
 #endif

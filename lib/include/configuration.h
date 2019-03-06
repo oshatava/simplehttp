@@ -11,7 +11,7 @@
 namespace server
 {
 
-typedef Request (*RequestProvider)(const unsigned char *buffer, int size);
+typedef Request (*RequestProvider)(const std::vector<char> &data);
 typedef Response (*ResponseProvider)(Request &request);
 typedef void (*RequestProccesor)(Request &response);
 typedef void (*ResponseProccesor)(Response &response);
@@ -25,7 +25,7 @@ class Configuration
     Configuration &preProccessorRaw(RequestProvider preProccessorRaw);
     Configuration &preProccessor(RequestProccesor preProccessor);
     Configuration &postProccessor(ResponseProccesor postProccessor);
-    Response createResponse(const unsigned char *buffer, int size);
+    Response createResponse(const std::vector<char> &data);
     Configuration(int port, int maxConnection);
     unsigned int getPort(){return port;}
     unsigned int getMaxConnection(){return maxConnection;}

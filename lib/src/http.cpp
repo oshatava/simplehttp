@@ -164,11 +164,12 @@ inline void parseHttpRequest(std::string requestRaw, server::Request &r)
     parseParameters(r.getParamsPost(), body);
 }
 
-server::Request http::requestProvider(const unsigned char *buffer, int size){
+server::Request http::requestProvider(const std::vector<char> &data){
     server::Request ret;
-    logger::Logger::d() << "Input data size "<< size<<logger::endl;
+    int size = data.size();
+    logger::Logger::d() << "Input data size "<<size<<logger::endl;
     if(size>0){
-        std::string datas((char*)buffer, size);
+        std::string datas(data.begin(), data.end());
         logger::Logger::d() << "Input data: " << logger::endl<< datas << logger::endl;
         parseHttpRequest(datas, ret);
     }

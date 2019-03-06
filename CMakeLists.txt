@@ -16,6 +16,7 @@ set(SOURCES
     ./src/error404.cpp
     ./src/http_logger.cpp
     ./src/coder.cpp
+    ./src/session.cpp
 )
 
 add_executable(box ${SOURCES})

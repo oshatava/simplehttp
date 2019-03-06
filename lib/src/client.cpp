@@ -23,7 +23,7 @@ void Client::threadFunc()
 {
     Logger::d() << thread << " Start client task for socket - " << clientSocketFD << endl;
     unsigned char buffer[256];
-    std::vector<unsigned char> input;
+    std::vector<char> input;
 
     while (!isShouldStop())
     {
@@ -45,7 +45,7 @@ void Client::threadFunc()
         }
     }
 
-    Response response = configuration.createResponse(input.data(), input.size());
+    Response response = configuration.createResponse(input);
     std::string out = response.build();
 
     send(clientSocketFD, out.c_str(), out.length(), 0);

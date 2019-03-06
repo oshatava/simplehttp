@@ -1,5 +1,5 @@
-#ifndef RESPONSE_H
-#define RESPONSE_H
+#ifndef ENTITY_H
+#define ENTITY_H
 #include <map>
 #include <iostream>
 #include <string>
@@ -22,6 +22,21 @@ namespace server
 #define CONTENT_TYPE_TEXT "text/html"
 #define CONTENT_TYPE_JSON "application/json"
 
+class Session
+{
+  private:
+    std::map<std::string, std::string> data;
+    bool dirty;
+  public:
+    Session(const Session &s):Session(s.data, s.dirty){}
+    Session(std::map<std::string, std::string> data, bool dirty):data(data), dirty(dirty){}
+    Session(){dirty = false;}
+    std::map<std::string, std::string> &getData() { return data; }
+    void flush(){dirty = false;}
+    void markAsDirty(){dirty = true;}
+    bool isDirty(){return dirty;}
+};
+
 class Request
 {
 private:
@@ -32,7 +47,7 @@ private:
   std::map<std::string, std::string> paramsPost;
   std::map<std::string, std::string> paramsGet;
   std::map<std::string, std::string> paramsPath;
-
+  Session session;
 public:
 
   Request(std::string path,
@@ -41,7 +56,8 @@ public:
           std::map<std::string, std::string> headers,
           std::map<std::string, std::string> paramsPost,
           std::map<std::string, std::string> paramsGet,
-          std::map<std::string, std::string> paramsPath)
+          std::map<std::string, std::string> paramsPath,
+          Session session)
   {
     this->path = path;
     this->method = method;
@@ -50,9 +66,10 @@ public:
     this->paramsPost = paramsPost;
     this->paramsGet = paramsGet;
     this->paramsPath = paramsPath;
+    this->session = session;
   }
 
-  Request(const Request &r) : Request(r.path, r.method, r.body, r.headers, r.paramsPost, r.paramsGet, r.paramsPath)
+  Request(const Request &r) : Request(r.path, r.method, r.body, r.headers, r.paramsPost, r.paramsGet, r.paramsPath, r.session)
   {
   }
 
@@ -60,7 +77,8 @@ public:
   , std::map<std::string, std::string>()
   , std::map<std::string, std::string>()
   , std::map<std::string, std::string>()
-  , std::map<std::string, std::string>())
+  , std::map<std::string, std::string>()
+  , Session())
   {
   }
 
@@ -71,11 +89,13 @@ public:
   std::map<std::string, std::string> &getParamsGet() { return paramsGet; }
   std::map<std::string, std::string> &getParamsPost() { return paramsPost; }
   std::map<std::string, std::string> &getParamsPath() { return paramsPath; }
+  Session &getSession() { return session; }
 
   void setMethod(std::string method) { this->method = method; }
   void setPath(std::string path) { this->path = path; }
-  void setBody(std::string body) { this->body = body; }
-  
+  void setBody(std::string body) { this->body = body; }  
+  void setSession(Session session) { this->session = session; }
+
 };
 
 class Response

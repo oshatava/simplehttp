@@ -21,7 +21,8 @@ using namespace common;
 
 void Server::threadFunc()
 {
-    Logger::d() << thread << " Start server" << endl;
+    int port = configuration.getPort();
+    Logger::d() << thread << " Start server on port:"<< port << endl;
 
     int sockfd, newsockfd;
     socklen_t clilen;
@@ -82,8 +83,7 @@ void Server::threadFunc()
 }
 
 Server::Server(Configuration &_configuration):Task(), configuration(_configuration)
-{
-    //Logger::d() << thread << " Create server on port " << configuration.getPort() << " for maximum clients " << configuration.getMaxConnection() << logger::endl;    
+{    
 }
 
 Server::~Server()

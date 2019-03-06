@@ -48,9 +48,17 @@ server::Response domain::DeviceResponse(server::Request &request){
     for(const auto p:request.getParamsPath()){
         jsn.value(p.first, p.second);
     }
+    std::string  v = request.getSession().getData()["v"];
+    std::stringstream newV;
+    newV<<v<<"1";
+    request.getSession().getData()["v"] = newV.str();
 
     return server::Response(request)
     .setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON)
-    .setBody(jsn.value("test", u8"Привет венегрет").end().str())
+    .setBody(jsn
+        .value("test", u8"Привет венегрет")
+        .value("v", v)
+        .value("newV", newV.str())
+        .end().str())
     .setRetCode(RESPONSE_CODE_OK_200);
 }
