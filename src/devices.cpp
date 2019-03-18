@@ -1,64 +1,23 @@
 #include "domain.h"
 #include "json.h"
 
-server::Response domain::DevicesResponse(server::Request &request)
+
+inline json::JSON &packDevice(json::JSON &json, domain::Device &device)
 {
-    domain::Device device1("87b89as793b937cv5", 10);
-    domain::Device device2("8sdaf7assa3b937cv", 2);
-    std::vector<Device> devices;
-
-    devices.push_back(device1);
-    devices.push_back(device2);
-    devices.push_back(device2);
-    devices.push_back(device1);
-    
-    json::JSON jsn;
-    jsn
-        .value("version", FIRMWARE_VERSION)
-        .value("data", 10)
-        .object("object")
-            .value("id", 100)
-            .value("vv", "100")
-            .value("floatVal", 100.4)
-            .end()
-        .value("floatVal1", 103.0)
-        .array("arr")
-            .object(device1)
-            .object(device2, packDevice)
-        .end()
-        .array(std::string("arr"))
-            .object(device1)
-            .object(device2, packDevice)
-        .end()        
-        .array("arr1", devices, packDevice)
-        .array("arr2")
-            .objects(devices, packDevice)
-        .end()
-    .end();
-
-    return server::Response(request)
-    .setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON)
-    .setBody(jsn.str())
-    .setRetCode(RESPONSE_CODE_OK_200);
+  return json
+      .value("id", device.id.c_str())
+      .value("channelCount", device.channelCount)
+      .end();
 }
 
-server::Response domain::DeviceResponse(server::Request &request){
-    json::JSON jsn;
-    jsn.value("id", request.getPath());
-    for(const auto p:request.getParamsPath()){
-        jsn.value(p.first, p.second);
-    }
-    std::string  v = request.getSession().getData()["v"];
-    std::stringstream newV;
-    newV<<v<<"1";
-    request.getSession().getData()["v"] = newV.str();
+std::string domain::D2S(domain::Device &device)
+{
+  json::JSON jsn;
+  return packDevice(jsn, device).str();
+}
 
-    return server::Response(request)
-    .setHeader(HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON)
-    .setBody(jsn
-        .value("test", u8"Привет венегрет")
-        .value("v", v)
-        .value("newV", newV.str())
-        .end().str())
-    .setRetCode(RESPONSE_CODE_OK_200);
+domain::Device domain::S2D(std::string &str)
+{
+  // todo
+  return domain::Device(str, 0);
 }

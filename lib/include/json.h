@@ -37,10 +37,10 @@ class JSON
   public:    
     JSON();
     JSON(JSON *parent, std::string startStr, std::string endStr){this->parent = parent; this->endStr = endStr; stream()<<startStr; hasValueAdded = false;}
-    JSON(std::string startStr, std::string endStr){this->endStr = endStr; stream()<<startStr; hasValueAdded = false;}
+    JSON(std::string startStr, std::string endStr):JSON(){this->endStr = endStr; stream()<<startStr; hasValueAdded = false;}
     ~JSON(){
         for(JSON* child:children){
-            delete child;            
+            delete child;
         }
         children.clear();
     }
@@ -62,12 +62,14 @@ class JSON
     template <class T> JSON &value(T name, long val){putName(name)<<val; return(*this);}
     template <class T> JSON &value(T name, float val){putName(name)<<val; return(*this);}
     template <class T> JSON &value(T name, bool val){putName(name)<<(val?"true":"false"); return(*this);}
+    template <class T, class V> JSON &valueRaw(T name, V val){putName(name)<<val; return(*this);}
     template <class T> JSON &value(T name, double val){putName(name)<<val; return(*this);}
     template <class T> JSON &valueNull(T name){putName(name)<<"null"; return(*this);}
     
-    JSON &object(){stream()<<(hasValueAdded?",":""); return newObject();}
+    JSON &object(){stream()<<(hasValueAdded?",":""); hasValueAdded = true; return newObject();}
     JSON &object(const char* name){putName(name); return newObject();}    
     JSON &object(std::string &name){putName(name); return newObject();}    
+    template <class T> JSON &objectRaw(T value){stream()<<(hasValueAdded?",":"")<<value; hasValueAdded = true; return (*this);}    
     template <class N, class T> JSON &object(N name, T& t, JSON &(*objectPacker)(JSON &, T&)){putName(name); return objectPacker(newObject(), t);}
     template <class T> JSON &object(T& t, JSON &(*objectPacker)(JSON &, T&)){stream()<<(hasValueAdded?",":""); return objectPacker(newObject(), t);}
     template <class T> JSON &object(T& t){stream()<<(hasValueAdded?",":""); return t.pack(newObject());}

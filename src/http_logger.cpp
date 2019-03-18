@@ -33,4 +33,6 @@ void http_logger::logRequest(server::Request &request)
     {
         logger::Logger::d() << "Post [" << parameter.first.c_str() << "] = " << parameter.second.c_str() << logger::endl;
     }
+    logger::Logger::d() << "Body is " << request.getBody().c_str() << logger::endl;
+
 }

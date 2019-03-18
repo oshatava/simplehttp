@@ -12,4 +12,4 @@ cmake .>out.txt
 make>out.txt
 rm ./out.txt
 echo "Run box"
-./box
+echo ./box

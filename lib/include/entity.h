@@ -15,6 +15,7 @@ namespace server
 #define METHOD_PUT "PUT"
 #define METHOD_DELETE "DELETE"
 
+#define RESPONSE_CODE_ERROR_500 500
 #define RESPONSE_CODE_ERROR_404 404
 #define RESPONSE_CODE_OK_200 200
 
@@ -24,17 +25,18 @@ namespace server
 
 class Session
 {
-  private:
-    std::map<std::string, std::string> data;
-    bool dirty;
-  public:
-    Session(const Session &s):Session(s.data, s.dirty){}
-    Session(std::map<std::string, std::string> data, bool dirty):data(data), dirty(dirty){}
-    Session(){dirty = false;}
-    std::map<std::string, std::string> &getData() { return data; }
-    void flush(){dirty = false;}
-    void markAsDirty(){dirty = true;}
-    bool isDirty(){return dirty;}
+private:
+  std::map<std::string, std::string> data;
+  bool dirty;
+
+public:
+  Session(const Session &s) : Session(s.data, s.dirty) {}
+  Session(std::map<std::string, std::string> data, bool dirty) : data(data), dirty(dirty) {}
+  Session() { dirty = false; }
+  std::map<std::string, std::string> &getData() { return data; }
+  void flush() { dirty = false; }
+  void markAsDirty() { dirty = true; }
+  bool isDirty() { return dirty; }
 };
 
 class Request
@@ -48,8 +50,8 @@ private:
   std::map<std::string, std::string> paramsGet;
   std::map<std::string, std::string> paramsPath;
   Session session;
-public:
 
+public:
   Request(std::string path,
           std::string method,
           std::string body,
@@ -73,18 +75,13 @@ public:
   {
   }
 
-  Request() : Request("", "", ""
-  , std::map<std::string, std::string>()
-  , std::map<std::string, std::string>()
-  , std::map<std::string, std::string>()
-  , std::map<std::string, std::string>()
-  , Session())
+  Request() : Request("", "", "", std::map<std::string, std::string>(), std::map<std::string, std::string>(), std::map<std::string, std::string>(), std::map<std::string, std::string>(), Session())
   {
   }
 
-  std::string getMethod() { return method; }
-  std::string getPath() { return path; }
-  std::string getBody() { return body; }
+  std::string getMethod() const { return method; }
+  std::string getPath() const { return path; }
+  std::string getBody() const { return body; }
   std::map<std::string, std::string> &getHeaders() { return headers; }
   std::map<std::string, std::string> &getParamsGet() { return paramsGet; }
   std::map<std::string, std::string> &getParamsPost() { return paramsPost; }
@@ -93,9 +90,8 @@ public:
 
   void setMethod(std::string method) { this->method = method; }
   void setPath(std::string path) { this->path = path; }
-  void setBody(std::string body) { this->body = body; }  
+  void setBody(std::string body) { this->body = body; }
   void setSession(Session session) { this->session = session; }
-
 };
 
 class Response
@@ -130,7 +126,7 @@ public:
   std::map<std::string, std::string> &getHeaders() { return headers; }
   std::string getBody() { return body.str(); }
   int getRetCode() { return retCode; }
-  Request getRequest(){return request;}
+  Request getRequest() { return request; }
   // Builder
   Response &setHeaders(std::map<std::string, std::string> headers)
   {
@@ -162,6 +158,37 @@ public:
   {
     this->retCode = code;
     return (*this);
+  }
+};
+
+class ServerError : public std::exception
+{
+private:
+  std::string message;
+public:
+  ServerError():message("ServerError"){}
+  ServerError(std::string message):message(message){}
+  ServerError(const ServerError &s):ServerError(s.message){}
+  
+  static void throwFor(std::string cause)
+  {
+    std::stringstream ret;
+    ret << "Exception ServerError thrown for cause: " << cause;
+    std::string message = ret.str();
+    throw ServerError(message);
+  }
+
+  static void throwFor(std::string cause, Request &r)
+  {
+    std::stringstream ret;
+    ret << "Exception ServerError thrown for request:[" << r.getMethod() << "] " << r.getPath() << " cause: " << cause;
+    std::string message = ret.str();
+    throw ServerError(message);
+  }
+
+  virtual const char *what() const _NOEXCEPT
+  {
+    return message.c_str();
   }
 };
 

@@ -13,6 +13,7 @@ namespace server
 
 typedef Request (*RequestProvider)(const std::vector<char> &data);
 typedef Response (*ResponseProvider)(Request &request);
+typedef Response (*ResponseExceptionProvider)(Request &request, std::exception &e);
 typedef void (*RequestProccesor)(Request &response);
 typedef void (*ResponseProccesor)(Response &response);
 
@@ -22,6 +23,7 @@ class Configuration
     virtual ~Configuration(){}
     Configuration &route(std::string method, std::string path, ResponseProvider responseProvider);
     Configuration &error(int error, ResponseProvider responseProvider);
+    Configuration &error(ResponseExceptionProvider responseProvider);
     Configuration &preProccessorRaw(RequestProvider preProccessorRaw);
     Configuration &preProccessor(RequestProccesor preProccessor);
     Configuration &postProccessor(ResponseProccesor postProccessor);
@@ -35,6 +37,7 @@ class Configuration
     unsigned int maxConnection;
     std::map<std::string, std::map<std::string, ResponseProvider>> callbackCreatorMap;
     std::map<int, ResponseProvider> errorCreatorMap;    
+    ResponseExceptionProvider responseExceptionProvider;
     std::vector<RequestProccesor> preProccessors;
     std::vector<ResponseProccesor> postProccessors;
     RequestProvider preProccessorRawFunc;

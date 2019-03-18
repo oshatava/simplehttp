@@ -7,41 +7,44 @@
 #include "entity.h"
 #include "json.h"
 #include "configuration.h"
+#include "imdb.h"
+#include "utils.h"
 
 namespace domain
 {
 
-server::Response VersionResponse(server::Request &request);
-server::Response DevicesResponse(server::Request &request);
-server::Response DeviceResponse(server::Request &request);
-server::Response My404ErrorPage(server::Request &request);
 
-class Device : public json::JSONObject
+class Device
 {
 public:
-  const std::string id;
-  const int channelCount;
+  std::string id;
+  int channelCount;
 
+public:
   Device(std::string id, int channelCount) : id(id), channelCount(channelCount)
   {
+    std::stringstream ss;
+    ss << channelCount;
   }
-
-  virtual json::JSON &pack(json::JSON &json)
-  {
-    return json
-        .value("id", id)
-        .value("channelCount", channelCount)
-        .end();
-  }
+  Device(const Device &d) : Device(d.id, d.channelCount) {}
+  Device() : Device("no_id", 0) {}
 };
 
-inline json::JSON &packDevice(json::JSON &json, Device &device)
-{
-  return json
-      .value("id", device.id.c_str())
-      .value("channelCount", device.channelCount)
-      .end();
-}
+server::Response VersionResponse(server::Request &request);
+server::Response My404ErrorPage(server::Request &request);
+
+std::string D2S(Device &device);
+Device S2D(std::string &str);
+
+class DeviceMatcher:public server::utils::Matcher<domain::Device>{
+  public:
+    DeviceMatcher(std::string &term):Matcher<Device>(){
+      matcher(domain::Device, id);
+      matcher(domain::Device, channelCount);
+      build(term);
+    }
+};
+
 
 } // namespace domain
 

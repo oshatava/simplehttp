@@ -4,6 +4,7 @@
 #include "configuration.h"
 #include "coder.h"
 #include "session.h"
+#include "imdb.h"
 
 using namespace domain;
 using namespace http_logger;
@@ -12,18 +13,25 @@ using namespace http_logger;
 #define APP_SERVER_NAME u8"Олег server"
 #endif
 
-
 int main()
 {
     logger::Logger::create(logger::DEBUG);
     session::SessionManager::create();
+    imdb::Imdb::create();    
     // Init http callbacks
     server::Configuration configuration(8080, 10);
-
+    
+    imdb::DataContainer<std::string, Device> deviceContainer;
+    imdb::DataSource<Device, domain::D2S, domain::S2D, domain::DeviceMatcher> deviceDS(deviceContainer);
+    imdb::MemoryDB devices(deviceDS);
+    for(int i=0; i<1000; i++){
+        std::stringstream id;
+        id<<"dev"<<i;
+        deviceContainer.setItem(id.str(), domain::Device(id.str(), i%100));
+    }
+   
     configuration
         .route(METHOD_GET, "/version", VersionResponse)
-        .route(METHOD_GET, "/devices", DevicesResponse)
-        .route(METHOD_GET, "/device/([0-9]+)", DeviceResponse)
         .error(RESPONSE_CODE_ERROR_404, My404ErrorPage)
         .preProccessor(logRequest)
         .preProccessor(security::RequestDeCoder)
@@ -36,6 +44,8 @@ int main()
         .postProccessor(security::ResponseEnCoder)
         ;
 
+    imdb::setUpHttpCallbacks(configuration, "/dev", &devices);
+    
     // Init server
     server::Server server(configuration);
 
@@ -43,6 +53,7 @@ int main()
     server.start();
     server.join();
     session::SessionManager::destroy();
+    imdb::Imdb::destroy();
     logger::Logger::destroy();
     return 0;
 }

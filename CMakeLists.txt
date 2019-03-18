@@ -3,6 +3,7 @@ project (box)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_BUILD_TYPE Debug)
 
 include_directories(./lib/include)
 include_directories(./src)
@@ -17,6 +18,7 @@ set(SOURCES
     ./src/http_logger.cpp
     ./src/coder.cpp
     ./src/session.cpp
+    ./src/imdb.cpp
 )
 
 add_executable(box ${SOURCES})
